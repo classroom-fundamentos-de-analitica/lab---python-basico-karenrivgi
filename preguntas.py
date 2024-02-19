@@ -12,7 +12,14 @@ Utilice el archivo `data.csv` para resolver las preguntas.
 
 """
 
+# leer el archivo data.csv
+def leer_archivo():
+    with open("data.csv", "r") as file:
+        data = file.read().splitlines()
+    return data
 
+
+# Preguntas
 def pregunta_01():
     """
     Retorne la suma de la segunda columna.
@@ -21,7 +28,13 @@ def pregunta_01():
     214
 
     """
-    return
+    archivo = leer_archivo()
+
+    # extrae la segunda columna, donde cada linea es una cadena de texto separada por tabulaciones
+    columna_2 = [int(linea.split("\t")[1]) for linea in archivo]
+    resultado = sum(columna_2)
+
+    return resultado
 
 
 def pregunta_02():
@@ -39,7 +52,16 @@ def pregunta_02():
     ]
 
     """
-    return
+    archivo = leer_archivo()
+    columna_1 = [linea.split("\t")[0] for linea in archivo]
+
+    # cuenta la cantidad de veces que aparece cada letra en la primera columna, eliminando repetidos
+    registros = list(set([(letra, columna_1.count(letra)) for letra in columna_1]))
+
+    # ordena la lista de tuplas por la clave (letra)
+    resultado = sorted(registros, key=lambda x: x[0])
+
+    return resultado
 
 
 def pregunta_03():
@@ -55,9 +77,26 @@ def pregunta_03():
         ("D", 31),
         ("E", 67),
     ]
+    
 
     """
-    return
+    archivo = leer_archivo()
+
+    # Extrae la primera y segunda columna del archivo, por cada línea
+    columnas_1y2 = [(linea.split("\t")[0], int(linea.split("\t")[1])) for linea in archivo]
+
+    # Suma los valores de la columna 2 por cada letra de la columna 1
+    grupos = {}
+    for letra, valor in columnas_1y2:
+        if letra in grupos:
+            grupos[letra] += valor
+        else:
+            grupos[letra] = valor
+    
+    # Ordena la lista de tuplas por la clave (letra)
+    resultado = sorted(list(grupos.items()), key=lambda x: x[0])
+
+    return resultado
 
 
 def pregunta_04():
@@ -82,7 +121,18 @@ def pregunta_04():
     ]
 
     """
-    return
+    archivo = leer_archivo()
+
+    # Extrae el mes de la columna 3, por cada línea
+    columna_3_mes = [linea.split("\t")[2].split("-")[1] for linea in archivo]
+
+    # Cuenta la cantidad de veces que aparece cada mes en la columna 3, eliminando repetidos
+    registros = list(set([(mes, columna_3_mes.count(mes)) for mes in columna_3_mes]))
+
+    # Ordena la lista de tuplas por la clave (mes)
+    resultado = sorted(registros, key=lambda x: x[0])
+
+    return resultado
 
 
 def pregunta_05():
@@ -100,7 +150,26 @@ def pregunta_05():
     ]
 
     """
-    return
+    archivo = leer_archivo()
+
+    # Obtenemos la primera y segunda columna del archivo
+    columna_1 = [linea.split("\t")[0] for linea in archivo]
+    columna_2 = [int(linea.split("\t")[1]) for linea in archivo]
+
+    # Agrupamos los valores de la columna 2 por cada letra de la columna 1
+    grupo = {}
+    for i in range (len(archivo)):
+        letra = columna_1[i]
+        if letra in grupo:
+            grupo[letra].append(columna_2[i])
+        else:
+            grupo[letra] = [columna_2[i]]
+
+    # Obtenemos el valor maximo y minimo de la columna 2 por cada letra de la columna 1 y los ordenamos por su clave
+    registros = [(letra, max(valores), min(valores)) for letra, valores in grupo.items()]
+    resultado = sorted(registros, key=lambda x: x[0])
+    
+    return resultado
 
 
 def pregunta_06():
@@ -125,7 +194,25 @@ def pregunta_06():
     ]
 
     """
-    return
+    archivo = leer_archivo()
+    columna_5 = [linea.split("\t")[4].split(',') for linea in archivo]
+    tuplas_columna_5 = [item for sublista in columna_5 for item in sublista]
+
+    # Agrupamos los valores de la columna 2 por cada letra de la columna 1
+    grupo = {}
+    for i in range (len(tuplas_columna_5)):
+        letras = tuplas_columna_5[i].split(":")[0]
+        valor = int(tuplas_columna_5[i].split(":")[1])
+        if letras in grupo:
+            grupo[letras].append(valor)
+        else:
+            grupo[letras] = [valor]
+
+    # Obtenemos el valor maximo y minimo de la columna 2 por cada letra de la columna 1 y los ordenamos por su clave
+    registros = [(letras, min(valores), max(valores)) for letras, valores in grupo.items()]
+    resultado = sorted(registros, key=lambda x: x[0])
+    
+    return resultado
 
 
 def pregunta_07():
@@ -149,7 +236,18 @@ def pregunta_07():
     ]
 
     """
-    return
+
+    archivo = leer_archivo()
+
+    # Obtenemos la primera y segunda columna del archivo
+    letras = [linea.split("\t")[0] for linea in archivo] # columna 1
+    valores = [int(linea.split("\t")[1]) for linea in archivo] # columna 2
+    
+    # Agrupamos los valores de la columna 1 por cada valor de la columna 2 (sin repetir)
+    registros = [(num, [letras[i] for i in range(len(valores)) if valores[i] == num]) 
+                 for num in set(valores)]
+    
+    return registros
 
 
 def pregunta_08():
@@ -174,7 +272,31 @@ def pregunta_08():
     ]
 
     """
-    return
+    archivo = leer_archivo()
+
+    # Obtenemos la primera y segunda columna del archivo
+    letras = [linea.split("\t")[0] for linea in archivo] # columna 1
+    valores = [int(linea.split("\t")[1]) for linea in archivo] # columna 2
+
+    # Agrupamos los valores de la columna 1 por cada valor de la columna 2 (sin repetir)
+    # (Con la misma lógica del anterior, pero sin usar list comprehension)
+
+    registros = []
+
+    # Recorremos los números de la columna 2 sin repetir
+    for num in set(valores):
+        letras_asociadas = []
+
+        # Recorremos ambas columnas, y si el valor de la columna 2 es igual a num, agregamos la letra asociada a la lista 
+        for i in range(len(valores)):
+            if valores[i] == num:
+                letras_asociadas.append(letras[i])
+        
+        # Ordenamos y eliminamos las letras repetidas
+        letras_sort_reduce = sorted(list(set(letras_asociadas)))
+        registros.append((num, letras_sort_reduce))
+
+    return registros
 
 
 def pregunta_09():
@@ -197,7 +319,21 @@ def pregunta_09():
     }
 
     """
-    return
+    archivo = leer_archivo()
+    columna_5 = [linea.split("\t")[4].split(',') for linea in archivo]
+    columna_5_plana = [item for sublista in columna_5 for item in sublista]
+
+    # Contamos la cantidad de veces que aparece cada clave de letras en la columna 5
+    grupo = {}
+    for i in range (len(columna_5_plana)):
+        letras = columna_5_plana[i].split(":")[0]
+        if letras in grupo:
+            grupo[letras] += 1
+        else:
+            grupo[letras] = 1
+
+    grupo_ordenado = {k:grupo[k] for k in sorted(grupo.keys())}
+    return grupo_ordenado
 
 
 def pregunta_10():
@@ -218,7 +354,18 @@ def pregunta_10():
 
 
     """
-    return
+    archivo = leer_archivo()
+
+    # Extrae la primera, cuarta y quinta columna del archivo
+    columna_1 = [linea.split("\t")[0] for linea in archivo]
+    columna_4 = [linea.split("\t")[3] for linea in archivo]
+    columna_5 = [linea.split("\t")[4] for linea in archivo]
+
+    # Cuenta la cantidad de elementos de las columnas 4 y 5 por cada letra de la columna 1 en el archivo
+    resultado = [(columna_1[i], len(columna_4[i].split(',')), len(columna_5[i].split(','))) 
+                 for i in range(len(columna_1))]
+    
+    return resultado
 
 
 def pregunta_11():
@@ -239,7 +386,30 @@ def pregunta_11():
 
 
     """
-    return
+    archivo = leer_archivo()
+    diccionario = {}
+
+    # Extrae la segunda y cuarta columna del archivo
+    valores = [linea.split("\t")[1] for linea in archivo] # columna 2
+    conjunto_letras = [linea.split("\t")[3] for linea in archivo] # columna 4
+
+    # Recorre línea por línea el archivo
+    for i in range(len(conjunto_letras)):
+
+        # Separa las letras de la columna 4 
+        letras = conjunto_letras[i].split(",")
+
+        # Recorre letra por letra de la columna 4 y suma el valor de la columna 2 en el diccionario
+        for j in range(len(letras)):
+            letra = letras[j]
+            valor = int(valores[i])
+            if letra in diccionario:
+                diccionario[letra] += valor
+            else:
+                diccionario[letra] = valor
+
+    diccionario_ordenado = {k:diccionario[k] for k in sorted(diccionario.keys())}
+    return diccionario_ordenado
 
 
 def pregunta_12():
@@ -257,4 +427,23 @@ def pregunta_12():
     }
 
     """
-    return
+    archivo = leer_archivo()
+
+    columna_1 = [linea.split("\t")[0] for linea in archivo]
+    columna_5 = [linea.split("\t")[4].split(',') for linea in archivo]
+    
+    for sublist in columna_5:
+        for i in range(len(sublist)):
+            sublist[i] = int(sublist[i].split(':')[1])
+    
+    diccionario = {}
+    for i in range(len(columna_1)):
+        letra = columna_1[i]
+        suma = sum(columna_5[i])
+        if letra in diccionario:
+            diccionario[letra] += suma
+        else:
+            diccionario[letra] = suma
+    
+    diccionario_ordenado = {k:diccionario[k] for k in sorted(diccionario.keys())}
+    return diccionario_ordenado
